@@ -1,5 +1,6 @@
 import shutil
 import tempfile
+from http import HTTPStatus
 
 from django import forms
 from django.conf import settings
@@ -72,8 +73,10 @@ class PostsPagesTests(TestCase):
         cls.url_post_edit = reverse_lazy(
             'posts:post_edit', kwargs={'post_id': cls.post.pk})
         cls.url_follow = reverse_lazy('posts:follow_index')
-        cls.url_profile_follow = reverse_lazy('posts:profile_follow', kwargs={'username': cls.post.author})
-        cls.url_profile_unfollow = reverse_lazy('posts:profile_unfollow', kwargs={'username': cls.post.author})
+        cls.url_profile_follow = reverse_lazy(
+            'posts:profile_follow', kwargs={'username': cls.post.author})
+        cls.url_profile_unfollow = reverse_lazy(
+            'posts:profile_unfollow', kwargs={'username': cls.post.author})
 
     @classmethod
     def tearDownClass(cls):
@@ -298,14 +301,16 @@ class FollowViewTest(TestCase):
             group=Group.objects.create(
                 title='Тестовая группа',
                 slug='test-slug',
-               description='Тестовое описание',
+                description='Тестовое описание',
             )
         )
         cls.url_profile = reverse_lazy(
             'posts:profile', kwargs={'username': cls.post.author})
         cls.url_follow = reverse_lazy('posts:follow_index')
-        cls.url_profile_follow = reverse_lazy('posts:profile_follow', kwargs={'username': cls.post.author})
-        cls.url_profile_unfollow = reverse_lazy('posts:profile_unfollow', kwargs={'username': cls.post.author})
+        cls.url_profile_follow = reverse_lazy(
+            'posts:profile_follow', kwargs={'username': cls.post.author})
+        cls.url_profile_unfollow = reverse_lazy(
+            'posts:profile_unfollow', kwargs={'username': cls.post.author})
 
     def setUp(self):
         self.authorized_client = Client()
@@ -324,7 +329,9 @@ class FollowViewTest(TestCase):
         """Тест работы подписки на автора"""
 
         follow_count = Follow.objects.count()
-        response = self.authorized_client_2.post(self.url_profile_follow, follow=True)
+        response = self.authorized_client_2.post(
+            self.url_profile_follow, follow=True
+        )
         self.assertRedirects(response, self.url_profile)
         self.assertEqual(Follow.objects.count(), follow_count + 1)
         self.assertTrue(
@@ -337,7 +344,9 @@ class FollowViewTest(TestCase):
     def test_profile_unfollow(self):
         """Тест работы отписки на автора"""
 
-        response = self.authorized_client_3.post(self.url_profile_unfollow, follow=True)
+        response = self.authorized_client_3.post(
+            self.url_profile_unfollow, follow=True
+        )
         self.assertRedirects(response, self.url_profile)
         self.assertEqual(Follow.objects.count(), 0)
 
@@ -345,8 +354,8 @@ class FollowViewTest(TestCase):
         """Тест отображения нового поста на странице /follow"""
 
         new_post = Post.objects.create(
-                author=self.user,
-                text='Тестовая пост для подписчика'
+            author=self.user,
+            text='Тестовая пост для подписчика'
         )
         response = self.authorized_client_3.get(self.url_follow)
 
@@ -357,7 +366,7 @@ class FollowViewTest(TestCase):
     def test_profile_index_nofollower(self):
         """Тест отсутствия нового поста на странице /follow не подписчика"""
 
-        new_post = Post.objects.create(
+        Post.objects.create(
             author=self.user,
             text='Тестовая пост для подписчика'
         )
@@ -367,5 +376,8 @@ class FollowViewTest(TestCase):
     def test_duble_follow(self):
         """Тест отсутствия задвоения подписки"""
 
-        response = self.authorized_client_3.post(self.url_profile_follow, follow=True)
+        response = self.authorized_client_3.post(
+            self.url_profile_follow, follow=True
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertEqual(self.user_follow_2.follower.count(), 1)
