@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load thumbnail %}
+{% block title %} Подписки {% endblock %}
+{% block header %}
+<div class="container py-1">
+    <h1>Ваши подписки</h1>
+</div>
+{% endblock %}
+{% block content %}
+<div class="container py-5">
+    {% include 'posts/includes/switcher.html' %}
+    {% if not post %}
+    <h2>К сожалению у Вас нет подписок </h2>
+    {% else %}
+    {% for post in page_obj %}
+    <ul>
+        <li>
+            Группа: {{ post.group.title }}
+        </li>
+        <li>
+            Автор: {{ post.author.get_full_name }}
+            <a href="{% url 'posts:profile' post.author %}">все посты пользователя</a>
+        </li>
+        <li>
+            Дата публикации: {{ post.pub_date|date:"d E Y" }}
+        </li>
+    </ul>
+    {% thumbnail post.image "960x339" crop="center" upscale=True as im %}
+    <img class="card-img my-2" src="{{ im.url }}">
+    {% endthumbnail %}
+    <p>{{ post.text }}</p>
+    {% if post.group %}
+    <a href="{% url 'posts:group_list' post.group.slug %}">все записи группы</a>
+    {% endif %}
+    {% if not forloop.last %}<hr>{% endif %}
+    {% endfor %}
+    {% include 'posts/includes/paginator.html' %}
+</div>
+{% endif %}
+{% endblock %}
