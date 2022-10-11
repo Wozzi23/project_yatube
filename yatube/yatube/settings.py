@@ -26,8 +26,9 @@ SECRET_KEY = 'a@(ld+c0fu!uiit2d(bjk#dc$u6-xk@9+8)89a*gt9@e4syzn('
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'wozzi56.pythonanywhere.com'
-    'www.wozzi56.pythonanywhere.com'
+    'wozzi56.pythonanywhere.com',
+    'www.wozzi56.pythonanywhere.com',
+    '127.0.0.1',
 ]
 
 
